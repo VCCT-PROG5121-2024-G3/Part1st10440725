@@ -1,0 +1,43 @@
+name: manual
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+
+      - name: List contents
+        run: ls
+
+      - name: Compile classes
+        run: javac -d ./bin -cp "./testresources/junit-platform-console-standalone-1.9.2.jar" ./src/RegisterAndLogin/IntTest.java ./src/RegisterAndLogin/loginclass.java ./test/RegisterAndLogin/TaskclassTest.java ./test/RegisterAndLogin/loginclassTest.java
+
+      - name: List contents of bin directory after compile
+        run: ls ./bin/RegisterAndLogin
+
+      # Run TaskclassTest and create report
+      - name: Run TaskclassTest and create report
+        run: |
+          ls ./bin
+          java -jar ./testresources/junit-platform-console-standalone-1.9.2.jar -cp ./bin --select-class RegisterAndLogin.TaskclassTest
+
+      # Run loginclassTest and create report
+      - name: Run loginclassTest and create report
+        run: |
+          ls ./bin
+          java -jar ./testresources/junit-platform-console-standalone-1.9.2.jar -cp ./bin --select-class RegisterAndLogin.loginclassTest
